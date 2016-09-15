@@ -56,8 +56,11 @@ func (master *Master) runOperation(remoteWorker *RemoteWorker, operation *Operat
 
 	if err != nil {
 		log.Printf("Operation %v '%v' Failed. Error: %v\n", operation.proc, operation.id, err)
-		wg.Done()
+		//wg.Done()
 		master.failedWorkerChan <- remoteWorker
+		rWorker := <- master.idleWorkerChan
+		go master.runOperation(rWorker, operation, wg)
+
 	} else {
 		wg.Done()
 		master.idleWorkerChan <- remoteWorker
